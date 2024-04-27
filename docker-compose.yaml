@@ -1,0 +1,25 @@
+version: '3.8'
+name: nestjs-estore
+services:
+  dev-db:
+    image: postgres:latest
+    ports:
+      - "5434:5432"
+    environment:
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: estore-dev
+    networks:
+      - nestjs-estore
+  test-db:
+    image: postgres:latest
+    ports:
+      - "5435:5432"
+    environment:
+      POSTGRES_USER: testuser
+      POSTGRES_PASSWORD: 123
+      POSTGRES_DB: estore-test
+    networks:
+      - nestjs-estore
+networks:
+  nestjs-estore:
