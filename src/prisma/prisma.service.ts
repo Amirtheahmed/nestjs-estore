@@ -17,7 +17,9 @@ export class PrismaService extends PrismaClient {
     cleanDB() {
         // used transaction to make sure the right order of query execution and avoid prisma's optimization reordering
         return this.$transaction([
-            this.user.deleteMany()
+            this.user.deleteMany(),
+            this.product.deleteMany(),
+            this.category.deleteMany()
         ]);
     }
 }

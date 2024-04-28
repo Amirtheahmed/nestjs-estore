@@ -7,7 +7,7 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model GetUser {
+model User {
   id        Int      @id @default(autoincrement())
   email     String   @unique
   hash      String
@@ -16,5 +16,46 @@ model GetUser {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  @@index([firstName], name: "user_firstName_idx")
+  @@index([lastName], name: "user_lastName_idx")
+  @@index([email], name: "user_email_idx")
   @@map("users")
+}
+
+model Category {
+  id          Int      @id @default(autoincrement())
+  name        String
+  description String?
+  lft         Int
+  rgt         Int
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  products Product[]
+
+  @@index([lft, rgt], name: "nested_set_idx")
+  @@index([name], name: "cat_name_idx")
+  @@index([description], name: "cat_description_idx")
+  @@index([lft, rgt, description], name: "cat_nested_description_idx")
+  @@index([lft, rgt, name], name: "cat_nested_name_idx")
+  @@map("categories")
+}
+
+model Product {
+  id            Int      @id @default(autoincrement())
+  name          String
+  description   String?
+  price         Int
+  categoryId    Int
+  stockQuantity Int
+  isActive      Boolean
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  category Category @relation(fields: [categoryId], references: [id])
+
+  @@index([name], name: "product_name_idx")
+  @@index([categoryId], name: "category_id_idx")
+  @@index([isActive], name: "category_isActive_idx")
+  @@map("products")
 }
