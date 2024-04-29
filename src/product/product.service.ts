@@ -131,7 +131,17 @@ export class ProductService {
             }
         }
 
-        const product = await this.prisma.product.update({
+        let product = this.prisma.product.findUnique({
+            where: {
+                id: productId
+            }
+        });
+
+        if (!product) {
+            throw new NotFoundException('Product not found.');
+        }
+
+        const updated = await this.prisma.product.update({
             where: {
                 id: productId
             },
@@ -140,10 +150,20 @@ export class ProductService {
             }
         });
 
-        return plainToInstance(ProductOutputDto, product, { excludeExtraneousValues: true });
+        return plainToInstance(ProductOutputDto, updated, { excludeExtraneousValues: true });
     }
 
     async deleteProduct(productId: number): Promise<void> {
+        let product = this.prisma.product.findUnique({
+            where: {
+                id: productId
+            }
+        });
+
+        if (!product) {
+            throw new NotFoundException('Product not found.');
+        }
+
         await this.prisma.product.delete({
             where: {
                 id: productId

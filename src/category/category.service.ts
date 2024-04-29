@@ -301,7 +301,17 @@ export class CategoryService {
     }
 
     async editCategory(categoryId:number, dto: EditCategoryDto): Promise<CategoryOutputDto> {
-        const category = await this.prisma.category.update({
+        let category = await this.prisma.category.findUnique({
+            where: {
+                id: categoryId
+            }
+        });
+
+        if(!category) {
+            throw new NotFoundException('Category not found');
+        }
+
+        category = await this.prisma.category.update({
             where: {
                 id: categoryId
             },
@@ -314,7 +324,6 @@ export class CategoryService {
     }
 
     async deleteCategory(categoryId: number, deleteSubcategories: boolean = false): Promise<void> {
-        console.log(deleteSubcategories);
         // Start a transaction for data consistency
         await this.prisma.$transaction(async (prisma) => {
             const category = await prisma.category.findUnique({
