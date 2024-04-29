@@ -1,4 +1,6 @@
-import {IsEmail, IsOptional, IsString} from "class-validator";
+import { IsEmail, IsEnum, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { ApiProperty } from '@nestjs/swagger';
+import { RoleSlug } from '../../utils/constants';
 
 export class EditUserDto {
     @IsEmail()
@@ -16,4 +18,9 @@ export class EditUserDto {
     @IsString()
     @IsOptional()
     password?: string
+
+    @ApiProperty({ example: [RoleSlug.USER, RoleSlug.ADMIN], description: 'Role of the user' })
+    @IsEnum(RoleSlug)
+    @IsOptional()
+    role?: string;
 }

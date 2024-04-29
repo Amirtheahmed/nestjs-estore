@@ -1,5 +1,7 @@
 import {ApiProperty} from "@nestjs/swagger";
 import {Expose} from "class-transformer";
+import { RoleSlug } from '../../utils/constants';
+import { IsEnum, IsOptional } from 'class-validator';
 
 export class UserOutputDto {
     @ApiProperty({ example: 1, description: 'The unique identifier of the user' })
@@ -17,6 +19,10 @@ export class UserOutputDto {
     @ApiProperty({ example: 'Doe', description: 'The user\'s last name' })
     @Expose()
     lastName: string;
+
+    @ApiProperty({ example: [RoleSlug.USER, RoleSlug.ADMIN], description: 'Role of the user' })
+    @Expose()
+    role: string;
 
     @ApiProperty({ example: '2020-01-01T00:00:00.000Z', description: 'The date the user was created' })
     @Expose()

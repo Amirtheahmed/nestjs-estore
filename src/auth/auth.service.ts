@@ -4,13 +4,13 @@ import {SigninDto, SignupDto} from "./dto";
 import {PrismaClientKnownRequestError} from "@prisma/client/runtime/library";
 import {JwtService} from "@nestjs/jwt";
 import {ConfigService} from "@nestjs/config";
+import { RoleSlug } from '../utils/constants';
 
 const argon2 = require('argon2');
 
 @Injectable({})
 export class AuthService {
-    constructor(private prisma: PrismaService, private jwt: JwtService, private config: ConfigService) {
-    }
+    constructor(private prisma: PrismaService, private jwt: JwtService, private config: ConfigService) {}
     async signIn(signInData: SigninDto): Promise<{access_token: string}> {
         const user = await this.prisma.user.findUnique({
             where: {
@@ -26,7 +26,7 @@ export class AuthService {
             throw new ForbiddenException('Invalid credentials!');
         }
 
-        const token = await this.signToken(user.id, user.email);
+        const token = await this.signToken(user.id, user.email, user.role);
         return {
             access_token: token
         }
@@ -39,11 +39,14 @@ export class AuthService {
             const user = await this.prisma.user.create({
                 data: {
                     email: signupData.email,
-                    hash: passwordHash
+                    hash: passwordHash,
+                    firstName: signupData.firstName,
+                    lastName: signupData.lastName,
+                    role: signupData.role
                 }
             });
 
-            const token = await this.signToken(user.id, user.email);
+            const token = await this.signToken(user.id, user.email, user.role);
             return {
                 access_token: token
             }
@@ -58,10 +61,11 @@ export class AuthService {
         }
     }
 
-    async signToken(userId: number, email: string): Promise<string> {
+    async signToken(userId: number, email: string, role: string): Promise<string> {
         const payload = {
             sub: userId,
-            email
+            email,
+            role
         }
 
         return await this.jwt.signAsync(

@@ -7,6 +7,7 @@ import {SigninDto, SignupDto} from "../src/auth/dto";
 import {EditUserDto} from "../src/user/dto";
 import {CreateCategoryDto, EditCategoryDto} from "../src/category/dto";
 import {CreateProductDto, EditProductDto} from "../src/product/dto";
+import { RoleSlug } from '../src/utils/constants';
 
 describe('E-store E2E Testing', () => {
   let app: INestApplication;
@@ -68,21 +69,36 @@ describe('E-store E2E Testing', () => {
       it('should throw if both invalid email', () => {
         const signUpDto: SignupDto = {
           email: "amir.demo.com",
-          password: "123"
+          password: "123",
+          role: RoleSlug.ADMIN
         }
         return pactum.spec().post(`auth/signup`)
             .withBody(signUpDto)
             .expectStatus(HttpStatus.BAD_REQUEST)
       });
 
-      it('should sign up', () => {
+      it('should sign up user', () => {
         const signUpDto: SignupDto = {
-          email: "amir@demo.com",
-          password: "123"
+          email: "amir@user.com",
+          password: "123",
+          role: RoleSlug.USER
         }
-        return pactum.spec().post(`auth/signup`)
-            .withBody(signUpDto)
-            .expectStatus(HttpStatus.CREATED)
+        return pactum.spec()
+          .post(`auth/signup`)
+          .withBody(signUpDto)
+          .expectStatus(HttpStatus.CREATED)
+      });
+
+      it('should sign up admin', () => {
+        const signUpDto: SignupDto = {
+          email: "amir@admin.com",
+          password: "123",
+          role: RoleSlug.ADMIN
+        }
+        return pactum.spec()
+          .post(`auth/signup`)
+          .withBody(signUpDto)
+          .expectStatus(HttpStatus.CREATED)
       });
     })
 
@@ -93,19 +109,30 @@ describe('E-store E2E Testing', () => {
           password: "123"
         }
         return pactum.spec().post(`auth/signup`)
-            .withBody({})
+            .withBody(signInDto)
             .expectStatus(HttpStatus.BAD_REQUEST)
       });
 
-      it('should sign in', () => {
+      it('should sign in as admin', () => {
         const signInDto: SigninDto = {
-          email: "amir@demo.com",
-          password: "123"
+          email: "amir@admin.com",
+          password: "123",
         }
         return pactum.spec().post('auth/signin')
             .withBody(signInDto)
             .expectStatus(HttpStatus.OK)
-            .stores('accessToken', 'access_token')
+            .stores('adminAccessToken', 'access_token')
+      });
+
+      it('should sign in as user', () => {
+        const signInDto: SigninDto = {
+          email: "amir@user.com",
+          password: "123",
+        }
+        return pactum.spec().post('auth/signin')
+          .withBody(signInDto)
+          .expectStatus(HttpStatus.OK)
+          .stores('userAccessToken', 'access_token')
       });
     });
   });
@@ -119,7 +146,7 @@ describe('E-store E2E Testing', () => {
     it('should get user info', () => {
       return pactum.spec().get('users/me')
           .withHeaders({
-            Authorization: 'Bearer $S{accessToken}'
+            Authorization: 'Bearer $S{adminAccessToken}'
           })
           .expectStatus(HttpStatus.OK);
     })
@@ -132,7 +159,10 @@ describe('E-store E2E Testing', () => {
 
       return pactum.spec().patch('users')
           .withBody(data)
-          .expectStatus(HttpStatus.UNAUTHORIZED);
+          .withHeaders({
+            Authorization: 'Bearer $S{userAccessToken}'
+          })
+          .expectStatus(HttpStatus.FORBIDDEN);
     })
 
     it('should get update user info', () => {
@@ -143,7 +173,7 @@ describe('E-store E2E Testing', () => {
 
       return pactum.spec().patch('users')
           .withHeaders({
-            Authorization: 'Bearer $S{accessToken}'
+            Authorization: 'Bearer $S{adminAccessToken}'
           })
           .withBody(data)
           .expectStatus(HttpStatus.OK)
@@ -167,7 +197,7 @@ describe('E-store E2E Testing', () => {
       };
       return pactum.spec()
           .post('categories')
-          .withHeaders({ Authorization: 'Bearer $S{accessToken}' })
+          .withHeaders({ Authorization: 'Bearer $S{adminAccessToken}' })
           .withBody(parentDto)
           .expectStatus(HttpStatus.CREATED)
           .stores('parentCategory', 'id');
@@ -178,7 +208,7 @@ describe('E-store E2E Testing', () => {
           .spec()
           .get('categories')
           .withHeaders({
-            Authorization: 'Bearer $S{accessToken}'
+            Authorization: 'Bearer $S{adminAccessToken}'
           })
           .expectStatus(HttpStatus.OK)
           .expectJsonSchema('data',{
@@ -198,7 +228,7 @@ describe('E-store E2E Testing', () => {
           .spec()
           .post('categories/')
           .withHeaders({
-            Authorization: 'Bearer $S{accessToken}'
+            Authorization: 'Bearer $S{adminAccessToken}'
           })
           .withBody(dto)
           .expectStatus(HttpStatus.NOT_FOUND);
@@ -212,7 +242,7 @@ describe('E-store E2E Testing', () => {
       };
       return pactum.spec()
           .post('categories')
-          .withHeaders({ Authorization: 'Bearer $S{accessToken}' })
+          .withHeaders({ Authorization: 'Bearer $S{adminAccessToken}' })
           .withBody(childDto)
           .expectStatus(HttpStatus.CREATED)
           .stores('childCategory', 'id');
@@ -224,7 +254,7 @@ describe('E-store E2E Testing', () => {
           .get('categories/{id}')
           .withPathParams('id', 123456)
           .withHeaders({
-            Authorization: 'Bearer $S{accessToken}'
+            Authorization: 'Bearer $S{adminAccessToken}'
           }).expectStatus(HttpStatus.NOT_FOUND);
     });
 
@@ -234,7 +264,7 @@ describe('E-store E2E Testing', () => {
           .get('categories')
           .withPathParams('id', '$S{childCategory}')
           .withHeaders({
-            Authorization: 'Bearer $S{accessToken}'
+            Authorization: 'Bearer $S{adminAccessToken}'
           })
           .expectStatus(HttpStatus.OK);
     });
@@ -249,7 +279,7 @@ describe('E-store E2E Testing', () => {
           .patch('categories/{id}')
           .withPathParams('id', '$S{parentCategory}')
           .withHeaders({
-            Authorization: 'Bearer $S{accessToken}'
+            Authorization: 'Bearer $S{adminAccessToken}'
           })
           .withBody(dto)
           .expectStatus(HttpStatus.OK)
@@ -264,7 +294,7 @@ describe('E-store E2E Testing', () => {
       };
       const id = await pactum.spec()
           .post('categories')
-          .withHeaders({ Authorization: 'Bearer $S{accessToken}' })
+          .withHeaders({ Authorization: 'Bearer $S{adminAccessToken}' })
           .withBody(dto)
           .expectStatus(HttpStatus.CREATED)
           .returns('id');
@@ -272,7 +302,7 @@ describe('E-store E2E Testing', () => {
       return pactum.spec()
           .delete(`categories/{id}`)
           .withPathParams('id', parseInt(id))
-          .withHeaders({ Authorization: 'Bearer $S{accessToken}' })
+          .withHeaders({ Authorization: 'Bearer $S{adminAccessToken}' })
           .expectStatus(HttpStatus.NO_CONTENT);
     });
 
@@ -280,7 +310,7 @@ describe('E-store E2E Testing', () => {
       return pactum.spec()
           .delete(`categories/{id}`)
           .withPathParams('id', '$S{parentCategory}')
-          .withHeaders({ Authorization: 'Bearer $S{accessToken}' })
+          .withHeaders({ Authorization: 'Bearer $S{adminAccessToken}' })
           .expectStatus(HttpStatus.BAD_REQUEST)
           .expectBodyContains('Category has subcategories and cannot be deleted without deleting them.')
           .inspect();
@@ -293,7 +323,7 @@ describe('E-store E2E Testing', () => {
           .withPathParams('id', '$S{parentCategory}')
           .withQueryParams('deleteChildren', true)
           .withHeaders({
-            Authorization: 'Bearer $S{accessToken}'
+            Authorization: 'Bearer $S{adminAccessToken}'
           })
           .expectStatus(HttpStatus.NO_CONTENT);
     });
@@ -315,7 +345,7 @@ describe('E-store E2E Testing', () => {
       };
       const categoryId = await pactum.spec()
           .post('categories')
-          .withHeaders({Authorization: 'Bearer $S{accessToken}'})
+          .withHeaders({Authorization: 'Bearer $S{adminAccessToken}'})
           .withBody(createCategoryDto)
           .expectStatus(HttpStatus.CREATED)
           .returns('id');
@@ -330,7 +360,7 @@ describe('E-store E2E Testing', () => {
       };
       return pactum.spec()
           .post('products')
-          .withHeaders({Authorization: 'Bearer $S{accessToken}'})
+          .withHeaders({Authorization: 'Bearer $S{adminAccessToken}'})
           .withBody(productDto)
           .expectStatus(HttpStatus.CREATED)
           .stores('productId', 'id');
@@ -341,7 +371,7 @@ describe('E-store E2E Testing', () => {
           .spec()
           .get('products')
           .withHeaders({
-            Authorization: 'Bearer $S{accessToken}'
+            Authorization: 'Bearer $S{adminAccessToken}'
           })
           .expectStatus(HttpStatus.OK)
           .expectJsonSchema('data',{
@@ -364,7 +394,7 @@ describe('E-store E2E Testing', () => {
           .spec()
           .post('products/')
           .withHeaders({
-            Authorization: 'Bearer $S{accessToken}'
+            Authorization: 'Bearer $S{adminAccessToken}'
           })
           .withBody(dto)
           .expectStatus(HttpStatus.NOT_FOUND);
@@ -376,7 +406,7 @@ describe('E-store E2E Testing', () => {
           .get('products/{id}')
           .withPathParams('id', 123456)
           .withHeaders({
-            Authorization: 'Bearer $S{accessToken}'
+            Authorization: 'Bearer $S{adminAccessToken}'
           }).expectStatus(HttpStatus.NOT_FOUND);
     });
 
@@ -386,7 +416,7 @@ describe('E-store E2E Testing', () => {
           .get('products')
           .withPathParams('id', '$S{productId}')
           .withHeaders({
-            Authorization: 'Bearer $S{accessToken}'
+            Authorization: 'Bearer $S{adminAccessToken}'
           })
           .expectStatus(HttpStatus.OK);
     });
@@ -403,7 +433,7 @@ describe('E-store E2E Testing', () => {
           .patch('products/{id}')
           .withPathParams('id', '$S{productId}')
           .withHeaders({
-            Authorization: 'Bearer $S{accessToken}'
+            Authorization: 'Bearer $S{adminAccessToken}'
           })
           .withBody(dto)
           .expectStatus(HttpStatus.OK)
@@ -416,7 +446,7 @@ describe('E-store E2E Testing', () => {
       return pactum.spec()
           .delete(`products/{id}`)
           .withPathParams('id', '$S{productId}')
-          .withHeaders({ Authorization: 'Bearer $S{accessToken}' })
+          .withHeaders({ Authorization: 'Bearer $S{adminAccessToken}' })
           .expectStatus(HttpStatus.NO_CONTENT);
     });
 
