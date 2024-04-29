@@ -2,10 +2,12 @@ import {NestFactory, Reflector} from '@nestjs/core';
 import { AppModule } from './app.module';
 import {ClassSerializerInterceptor, ValidationPipe} from "@nestjs/common";
 import {DocumentBuilder, SwaggerDocumentOptions, SwaggerModule} from "@nestjs/swagger";
+import * as compression from 'compression';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
+  // Global Pipes and Interceptors
   app.useGlobalPipes(new ValidationPipe({
     whitelist: true,
     //forbidNonWhitelisted: true,
@@ -19,6 +21,7 @@ async function bootstrap() {
       app.get(Reflector))
   );
 
+  // Swagger API Documentation
   const config = new DocumentBuilder()
       .setTitle('NestJS - E-Store')
       .setDescription('E-Store API Documentation')
@@ -34,6 +37,10 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config, options);
   SwaggerModule.setup('api', app, document);
 
+  // Enable compression middleware
+  app.use(compression({ threshold: 1024 }));
+
+  // Run application
   await app.listen(3000);
 }
 bootstrap();

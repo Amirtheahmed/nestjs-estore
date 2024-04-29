@@ -13,5 +13,5 @@ export class PaginationParams {
     @Type(() => Number)
     @IsNumber()
     @Min(1)
-    limit?: number = 30;
+    limit?: number = 50;
 }
