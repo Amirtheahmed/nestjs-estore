@@ -1,28 +1,44 @@
 import {Injectable} from "@nestjs/common";
 import {PrismaService} from "../prisma/prisma.service";
-import {EditUserDto} from "./dto";
-import argon2 from "argon2";
+import {EditUserDto, UserOutputDto} from "./dto";
+import {plainToInstance} from "class-transformer";
+
+const argon2 = require('argon2');
 
 @Injectable()
 export class UserService {
     constructor(private prisma: PrismaService) {}
 
     async editUser(userId: number, dto: EditUserDto) {
-        if(dto.password) {
-            dto.password = await  argon2.hash(dto.password);
+        let user = await this.prisma.user.findUnique({
+                where: {
+                id: userId
+            }
+        })
+
+        if(!user) {
+            throw new Error('User not found');
         }
 
-        const user = await this.prisma.user.update({
+        let hash = user.hash;
+
+        if(dto.password) {
+            hash = await  argon2.hash(dto.password);
+            delete dto.password;
+        }
+
+        user = await this.prisma.user.update({
             where: {
                 id: userId
             },
             data: {
-                ...dto
+                ...dto,
+                hash
             }
         })
 
-        delete user.hash;
-
-        return user;
+        return plainToInstance(UserOutputDto, user, {
+            excludeExtraneousValues: true
+        });
     }
 }

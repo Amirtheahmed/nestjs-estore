@@ -3,9 +3,10 @@ import {AppModule} from "../src/app.module";
 import {HttpStatus, INestApplication, ValidationPipe} from "@nestjs/common";
 import {PrismaService} from "../src/prisma/prisma.service";
 import * as pactum from "pactum"
-import {SignInDto, SignUpDto} from "../src/auth/dto";
+import {SigninDto, SignupDto} from "../src/auth/dto";
 import {EditUserDto} from "../src/user/dto";
 import {CreateCategoryDto, EditCategoryDto} from "../src/category/dto";
+import {CreateProductDto, EditProductDto} from "../src/product/dto";
 
 describe('E-store E2E Testing', () => {
   let app: INestApplication;
@@ -65,7 +66,7 @@ describe('E-store E2E Testing', () => {
       });
 
       it('should throw if both invalid email', () => {
-        const signUpDto: SignUpDto = {
+        const signUpDto: SignupDto = {
           email: "amir.demo.com",
           password: "123"
         }
@@ -75,7 +76,7 @@ describe('E-store E2E Testing', () => {
       });
 
       it('should sign up', () => {
-        const signUpDto: SignUpDto = {
+        const signUpDto: SignupDto = {
           email: "amir@demo.com",
           password: "123"
         }
@@ -87,7 +88,7 @@ describe('E-store E2E Testing', () => {
 
     describe('Sign in', () => {
       it('should throw if invalid credential', () => {
-        const signInDto: SignInDto = {
+        const signInDto: SigninDto = {
           email: "incorrect@email.com",
           password: "123"
         }
@@ -97,7 +98,7 @@ describe('E-store E2E Testing', () => {
       });
 
       it('should sign in', () => {
-        const signInDto: SignInDto = {
+        const signInDto: SigninDto = {
           email: "amir@demo.com",
           password: "123"
         }
@@ -294,6 +295,128 @@ describe('E-store E2E Testing', () => {
           .withHeaders({
             Authorization: 'Bearer $S{accessToken}'
           })
+          .expectStatus(HttpStatus.NO_CONTENT);
+    });
+
+  });
+
+  describe('Product',  () => {
+    it('should throw if not authenticated', () => {
+      return pactum
+          .spec()
+          .get('products')
+          .expectStatus(HttpStatus.UNAUTHORIZED);
+    });
+
+    it('should create product and store its ID', async () => {
+      const createCategoryDto: CreateCategoryDto = {
+        name: 'Temporary',
+        description: 'A temporary category'
+      };
+      const categoryId = await pactum.spec()
+          .post('categories')
+          .withHeaders({Authorization: 'Bearer $S{accessToken}'})
+          .withBody(createCategoryDto)
+          .expectStatus(HttpStatus.CREATED)
+          .returns('id');
+
+      const productDto: CreateProductDto = {
+        name: 'Sony Playstation 5',
+        description: 'The ultimate gaming console',
+        price: 49999,
+        stockQuantity: 10,
+        isActive: true,
+        categoryId: categoryId
+      };
+      return pactum.spec()
+          .post('products')
+          .withHeaders({Authorization: 'Bearer $S{accessToken}'})
+          .withBody(productDto)
+          .expectStatus(HttpStatus.CREATED)
+          .stores('productId', 'id');
+    });
+
+    it('should list products', () => {
+      return pactum
+          .spec()
+          .get('products')
+          .withHeaders({
+            Authorization: 'Bearer $S{accessToken}'
+          })
+          .expectStatus(HttpStatus.OK)
+          .expectJsonSchema('data',{
+            "type": "array"
+          }).expectJsonSchema('meta',{
+            "type": "object"
+          });
+    });
+
+    it('should throw when invalid category', () => {
+      const dto: CreateProductDto = {
+        name: 'Sony Playstation 5',
+        description: 'The ultimate gaming console',
+        price: 49999,
+        stockQuantity: 10,
+        isActive: true,
+        categoryId: 123456
+      }
+      return pactum
+          .spec()
+          .post('products/')
+          .withHeaders({
+            Authorization: 'Bearer $S{accessToken}'
+          })
+          .withBody(dto)
+          .expectStatus(HttpStatus.NOT_FOUND);
+    });
+
+    it('should throw when invalid product id', () => {
+      return pactum
+          .spec()
+          .get('products/{id}')
+          .withPathParams('id', 123456)
+          .withHeaders({
+            Authorization: 'Bearer $S{accessToken}'
+          }).expectStatus(HttpStatus.NOT_FOUND);
+    });
+
+    it('should get product by id', () => {
+      return pactum
+          .spec()
+          .get('products')
+          .withPathParams('id', '$S{productId}')
+          .withHeaders({
+            Authorization: 'Bearer $S{accessToken}'
+          })
+          .expectStatus(HttpStatus.OK);
+    });
+
+    it('should edit product', () => {
+      const dto: EditProductDto = {
+        name: 'Updated Product Name',
+        description: 'Updated Product Description',
+        price: 50000,
+        stockQuantity: 15,
+      }
+      return pactum
+          .spec()
+          .patch('products/{id}')
+          .withPathParams('id', '$S{productId}')
+          .withHeaders({
+            Authorization: 'Bearer $S{accessToken}'
+          })
+          .withBody(dto)
+          .expectStatus(HttpStatus.OK)
+          .expectBodyContains(dto.name)
+          .expectBodyContains(dto.description);
+    });
+
+    it('should delete a product', async () => {
+
+      return pactum.spec()
+          .delete(`products/{id}`)
+          .withPathParams('id', '$S{productId}')
+          .withHeaders({ Authorization: 'Bearer $S{accessToken}' })
           .expectStatus(HttpStatus.NO_CONTENT);
     });
 
