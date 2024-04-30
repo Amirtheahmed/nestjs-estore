@@ -1,2 +1,2 @@
-export * from './edit-user.dto'
-export * from './user-output.dto'
+export * from './edit-user.dto';
+export * from './user-output.dto';

@@ -1,6 +1,6 @@
 export enum RoleSlug {
-    ADMIN = 'admin',
-    USER = 'user',
+  ADMIN = 'admin',
+  USER = 'user',
 }
 
 export const GET_CATEGORIES_CACHE_KEY = 'GET_CATEGORIES_CACHE';

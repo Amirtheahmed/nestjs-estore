@@ -1,27 +1,26 @@
-import {IsBoolean, IsInt, IsOptional, IsString, Min} from "class-validator";
-import {ApiProperty} from "@nestjs/swagger";
-import {TransformPriceToInteger} from "../transformers";
+import { IsBoolean, IsInt, IsOptional, IsString, Min } from 'class-validator';
+import { TransformPriceToInteger } from '../transformers';
 
 export class CreateProductDto {
-    @IsString()
-    name: string
+  @IsString()
+  name: string;
 
-    @IsString()
-    @IsOptional()
-    description?: string
+  @IsString()
+  @IsOptional()
+  description?: string;
 
-    @TransformPriceToInteger()
-    @IsInt()
-    @Min(0)
-    price: number;
+  @TransformPriceToInteger()
+  @IsInt()
+  @Min(0)
+  price: number;
 
-    @IsInt()
-    @Min(0)
-    stockQuantity: number;
+  @IsInt()
+  @Min(0)
+  stockQuantity: number;
 
-    @IsBoolean()
-    isActive: boolean;
+  @IsBoolean()
+  isActive: boolean;
 
-    @IsInt()
-    categoryId: number;
+  @IsInt()
+  categoryId: number;
 }

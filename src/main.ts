@@ -1,7 +1,11 @@
-import {NestFactory, Reflector} from '@nestjs/core';
+import { NestFactory, Reflector } from '@nestjs/core';
 import { AppModule } from './app.module';
-import {ClassSerializerInterceptor, ValidationPipe} from "@nestjs/common";
-import {DocumentBuilder, SwaggerDocumentOptions, SwaggerModule} from "@nestjs/swagger";
+import { ClassSerializerInterceptor, ValidationPipe } from '@nestjs/common';
+import {
+  DocumentBuilder,
+  SwaggerDocumentOptions,
+  SwaggerModule,
+} from '@nestjs/swagger';
 import * as compression from 'compression';
 import helmet from 'helmet';
 
@@ -12,31 +16,28 @@ async function bootstrap() {
   app.use(helmet());
 
   // Global Pipes and Interceptors
-  app.useGlobalPipes(new ValidationPipe({
-    whitelist: true,
-    //forbidNonWhitelisted: true,
-    transform: true,
-    transformOptions: {
-      enableImplicitConversion: true,
-    }
-  }));
-
-  app.useGlobalInterceptors(new ClassSerializerInterceptor(
-      app.get(Reflector))
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+      //forbidNonWhitelisted: true,
+      transform: true,
+      transformOptions: {
+        enableImplicitConversion: true,
+      },
+    }),
   );
+
+  app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
 
   // Swagger API Documentation
   const config = new DocumentBuilder()
-      .setTitle('NestJS - E-Store')
-      .setDescription('E-Store API Documentation')
-      .setVersion('1.0')
-      .build();
+    .setTitle('NestJS - E-Store')
+    .setDescription('E-Store API Documentation')
+    .setVersion('1.0')
+    .build();
 
-  const options: SwaggerDocumentOptions =  {
-    operationIdFactory: (
-        controllerKey: string,
-        methodKey: string
-    ) => methodKey
+  const options: SwaggerDocumentOptions = {
+    operationIdFactory: (controllerKey: string, methodKey: string) => methodKey,
   };
   const document = SwaggerModule.createDocument(app, config, options);
   SwaggerModule.setup('api', app, document);
