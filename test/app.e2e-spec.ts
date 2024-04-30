@@ -8,7 +8,6 @@ import { EditUserDto } from '../src/user/dto';
 import { CreateCategoryDto, EditCategoryDto } from '../src/category/dto';
 import { CreateProductDto, EditProductDto } from '../src/product/dto';
 import { RoleSlug } from '../src/utils/constants';
-import { ThrottlerModule } from '@nestjs/throttler';
 
 describe('E-store E2E Testing', () => {
   let app: INestApplication;
