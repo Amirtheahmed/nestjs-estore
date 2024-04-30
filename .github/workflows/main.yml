@@ -54,7 +54,7 @@ jobs:
           context: .
           file: ./Dockerfile
           push: true
-          tags: amirtheahmed//nestjs-estore:latest
+          tags: amirtheahmed/nestjs-estore:latest
       - name: Deploy to server
         uses: appleboy/ssh-action@v1.0.0
         with:
@@ -63,7 +63,7 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: 22
           script: |
-            docker pull amirtheahmed//nestjs-estore:latest
+            docker pull amirtheahmed/nestjs-estore:latest
             cd /home/amirtheahmed/apps/nestjs-estore &&
             docker-compose pull &&
             docker-compose down &&
