@@ -6,13 +6,13 @@ import {EditUserDto, UserOutputDto} from "./dto";
 import {UserService} from "./user.service";
 import {ApiBadRequestResponse, ApiOkResponse, ApiTags} from "@nestjs/swagger";
 import {ValidationErrorOutputDto} from "../utils/dto";
-import {SigninOutputDto} from "../auth/dto";
 import {plainToInstance} from "class-transformer";
-import {CategoryOutputDto} from "../category/dto";
 import { RoleSlug } from '../utils/constants';
+import { Throttle } from '@nestjs/throttler';
 
-@UseGuards(JwtGuard, RoleGuard)
 @ApiTags('Users')
+@Throttle({})
+@UseGuards(JwtGuard, RoleGuard)
 @Controller('users')
 export class UserController {
     constructor(private userService: UserService) {}

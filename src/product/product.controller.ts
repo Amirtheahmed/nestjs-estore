@@ -21,9 +21,10 @@ import {PaginatedOutputDto} from "../utils/dto";
 import { Roles } from '../auth/decorators';
 import { GET_PRODUCTS_CACHE_KEY, RoleSlug } from '../utils/constants';
 import { CacheKey } from '@nestjs/cache-manager';
+import { Throttle, ThrottlerGuard } from '@nestjs/throttler';
 
 @ApiTags('Products')
-@UseGuards(JwtGuard, RoleGuard)
+@UseGuards(JwtGuard, RoleGuard, ThrottlerGuard)
 @Controller('products')
 export class ProductController {
     constructor(private productService: ProductService) {}

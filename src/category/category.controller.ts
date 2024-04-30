@@ -21,9 +21,10 @@ import {PaginatedOutputDto} from "../utils/dto";
 import { Roles } from '../auth/decorators';
 import { GET_CATEGORIES_CACHE_KEY, GET_CHILD_CATEGORIES_CACHE_KEY, RoleSlug } from '../utils/constants';
 import { CacheKey } from '@nestjs/cache-manager';
+import { Throttle, ThrottlerGuard } from '@nestjs/throttler';
 
 @ApiTags('Categories')
-@UseGuards(JwtGuard, RoleGuard)
+@UseGuards(JwtGuard, RoleGuard, ThrottlerGuard)
 @Controller('categories')
 export class CategoryController {
     constructor(private categoryService: CategoryService) {}
