@@ -5,6 +5,7 @@ COPY package-lock.json .
 COPY prisma ./prisma/
 RUN npm install
 COPY . .
+RUN npm run prisma:dev:deploy
 RUN npm run build
 
 FROM node:22-alpine

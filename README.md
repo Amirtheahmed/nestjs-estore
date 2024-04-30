@@ -36,7 +36,12 @@ This is a RESTful API designed for an online store to manage products, categorie
 
 ### Prerequisites
 
-- Node.js 16+
+- Node.js 18+ & TypeScript
+  - ```bash
+    npm install -g typescript
+    npm install -g ts-node
+    ```
+- Prisma
 - Docker
 - A preferred text editor and terminal.
 
@@ -72,7 +77,7 @@ npm run start:dev
 To seed db with data run
 
 ```bash
-npm prisma db seed
+npm run seed
 ```
 
 ## Usage
@@ -84,6 +89,15 @@ After running the application, you can access the API
 ### API Documentation
 
 Access the auto-generated Swagger documentation at http://localhost:3000/api.
+
+### Seed user details for test purposes
+
+- Admin user
+  - email: `admin@example.com`
+  - password: `admin123`
+- Regular user
+    - email: `user@example.com`
+    - password: `user123`
 
 ### Running Tests
 
