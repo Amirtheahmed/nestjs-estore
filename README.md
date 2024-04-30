@@ -32,6 +32,12 @@ This is a RESTful API designed for an online store to manage products, categorie
 - Dockerized environment setup.
 - Continuous Integration and Deployment using GitHub Actions to deploy to private server.
 
+## Live api
+
+- Live test api at https://nestjs-estore.amirtheahmed.dev/
+- Swagger documentation at https://nestjs-estore.amirtheahmed.dev/api
+- Swagger documentation json at https://nestjs-estore.amirtheahmed.dev/api-json
+
 ## Installation
 
 ### Prerequisites
