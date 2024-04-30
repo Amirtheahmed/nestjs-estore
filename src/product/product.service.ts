@@ -1,20 +1,34 @@
 import {
-    BadRequestException,
+    BadRequestException, Inject,
     Injectable,
     NotFoundException,
 } from '@nestjs/common';
 import { createPaginator } from 'prisma-pagination';
-import {Product, Prisma} from '@prisma/client';
+import {Prisma} from '@prisma/client';
 
 import {PrismaService} from "../prisma/prisma.service";
 import {CreateProductDto, EditProductDto, ProductOutputDto} from "./dto";
 import {plainToInstance} from "class-transformer";
 import {PaginatedOutputDto} from "../utils/dto";
-import {ProductWithCategory} from "./types";
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { Cache } from 'cache-manager';
+import { GET_CATEGORIES_CACHE_KEY } from '../utils/constants';
 
 @Injectable()
 export class ProductService {
-    constructor(private prisma: PrismaService) {}
+    constructor(
+      private prisma: PrismaService,
+      @Inject(CACHE_MANAGER) private cacheManager: Cache,
+    ) {}
+
+    async clearCache() {
+        const keys: string[] = await this.cacheManager.store.keys();
+        keys.forEach((key) => {
+            if (key.startsWith(GET_CATEGORIES_CACHE_KEY)) {
+                this.cacheManager.del(key);
+            }
+        })
+    }
 
     async getProducts(page?: number, limit?: number): Promise<PaginatedOutputDto<ProductOutputDto>> {
         const paginate = createPaginator({ perPage: limit });
@@ -97,6 +111,8 @@ export class ProductService {
             }
         });
 
+        await this.clearCache();
+
         return plainToInstance(ProductOutputDto, product, { excludeExtraneousValues: true });
     }
 
@@ -150,6 +166,8 @@ export class ProductService {
             }
         });
 
+        await this.clearCache();
+
         return plainToInstance(ProductOutputDto, updated, { excludeExtraneousValues: true });
     }
 
@@ -168,6 +186,8 @@ export class ProductService {
             where: {
                 id: productId
             }
-        })
+        });
+
+        await this.clearCache();
     }
 }

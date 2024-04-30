@@ -1,20 +1,35 @@
 import {
-    BadRequestException,
+    BadRequestException, Inject,
     Injectable,
     NotFoundException,
 } from '@nestjs/common';
 import { createPaginator } from 'prisma-pagination';
 import {Category, Prisma} from '@prisma/client';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { Cache } from 'cache-manager';
 
 import {PrismaService} from "../prisma/prisma.service";
 import {CreateCategoryDto, EditCategoryDto, CategoryOutputDto} from "./dto";
 import {plainToInstance} from "class-transformer";
 import {PaginatedOutputDto} from "../utils/dto";
 import {CategoryWithParent} from "./types";
+import { GET_CATEGORIES_CACHE_KEY } from '../utils/constants';
 
 @Injectable()
 export class CategoryService {
-    constructor(private prisma: PrismaService) {}
+    constructor(
+      @Inject(CACHE_MANAGER) private cacheManager: Cache,
+      private prisma: PrismaService,
+    ) {}
+
+    async clearCache() {
+        const keys: string[] = await this.cacheManager.store.keys();
+        keys.forEach((key) => {
+            if (key.startsWith(GET_CATEGORIES_CACHE_KEY)) {
+                this.cacheManager.del(key);
+            }
+        })
+    }
 
     async getCategories(page?: number, limit?: number): Promise<PaginatedOutputDto<CategoryOutputDto>> {
         const paginate = createPaginator({ perPage: limit });
@@ -270,6 +285,7 @@ export class CategoryService {
                     }
                 });
             }
+            await this.clearCache();
         });
         return plainToInstance(CategoryOutputDto, newCategory, { excludeExtraneousValues: true });
     }
@@ -319,6 +335,8 @@ export class CategoryService {
                 ...dto
             }
         });
+
+        await this.clearCache();
 
         return plainToInstance(CategoryOutputDto, category, { excludeExtraneousValues: true });
     }
@@ -386,6 +404,8 @@ export class CategoryService {
                     rgt: { decrement: width }
                 }
             });
+
+            await this.clearCache();
         });
     }
 }

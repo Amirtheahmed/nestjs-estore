@@ -9,7 +9,7 @@ import {
     ParseIntPipe,
     Patch,
     Post, Query,
-    UseGuards
+    UseGuards,
 } from '@nestjs/common';
 import {CategoryService} from "./category.service";
 import {CreateCategoryDto, EditCategoryDto, CategoryOutputDto} from "./dto";
@@ -19,7 +19,8 @@ import {ApiPaginatedResponse} from "../utils/decorators/api-paginated-response-d
 import {ApiOkResponse, ApiQuery, ApiTags} from "@nestjs/swagger";
 import {PaginatedOutputDto} from "../utils/dto";
 import { Roles } from '../auth/decorators';
-import { RoleSlug } from '../utils/constants';
+import { GET_CATEGORIES_CACHE_KEY, GET_CHILD_CATEGORIES_CACHE_KEY, RoleSlug } from '../utils/constants';
+import { CacheKey } from '@nestjs/cache-manager';
 
 @ApiTags('Categories')
 @UseGuards(JwtGuard, RoleGuard)
@@ -29,6 +30,7 @@ export class CategoryController {
 
     @Get()
     @Roles(RoleSlug.ADMIN, RoleSlug.USER)
+    @CacheKey(GET_CATEGORIES_CACHE_KEY)
     @ApiPaginatedResponse(CategoryOutputDto)
     @ApiQuery({ name: 'search', required: false, type: String, description: 'Search query to filter categories' })
     @ApiQuery({ name: 'page', required: false, type: Number, description: 'Page number for pagination' })
@@ -45,6 +47,7 @@ export class CategoryController {
 
     @Get(':id/child')
     @Roles(RoleSlug.ADMIN, RoleSlug.USER)
+    @CacheKey(GET_CHILD_CATEGORIES_CACHE_KEY)
     @ApiPaginatedResponse(CategoryOutputDto)
     @ApiQuery({ name: 'search', required: false, type: String, description: 'Search query to filter categories' })
     @ApiQuery({ name: 'page', required: false, type: Number, description: 'Page number for pagination' })

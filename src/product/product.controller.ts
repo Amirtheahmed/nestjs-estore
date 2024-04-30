@@ -19,7 +19,8 @@ import {ApiPaginatedResponse} from "../utils/decorators/api-paginated-response-d
 import {ApiOkResponse, ApiQuery, ApiTags} from "@nestjs/swagger";
 import {PaginatedOutputDto} from "../utils/dto";
 import { Roles } from '../auth/decorators';
-import { RoleSlug } from '../utils/constants';
+import { GET_PRODUCTS_CACHE_KEY, RoleSlug } from '../utils/constants';
+import { CacheKey } from '@nestjs/cache-manager';
 
 @ApiTags('Products')
 @UseGuards(JwtGuard, RoleGuard)
@@ -29,6 +30,7 @@ export class ProductController {
 
     @Get()
     @Roles(RoleSlug.ADMIN, RoleSlug.USER)
+    @CacheKey(GET_PRODUCTS_CACHE_KEY)
     @ApiPaginatedResponse(ProductOutputDto)
     @ApiQuery({ name: 'search', required: false, type: String, description: 'Search query to filter products' })
     @ApiQuery({ name: 'page', required: false, type: Number, description: 'Page number for pagination' })
