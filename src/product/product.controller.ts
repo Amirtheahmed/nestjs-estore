@@ -17,7 +17,7 @@ import { CreateProductDto, EditProductDto, ProductOutputDto } from './dto';
 import { JwtGuard, RoleGuard } from '../auth/guard';
 import { PaginationParams } from '../utils/types';
 import { ApiPaginatedResponse } from '../utils/decorators/api-paginated-response-decorator';
-import { ApiOkResponse, ApiQuery, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOkResponse, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { PaginatedOutputDto } from '../utils/dto';
 import { Roles } from '../auth/decorators';
 import { GET_PRODUCTS_CACHE_KEY, RoleSlug } from '../utils/constants';
@@ -26,6 +26,7 @@ import { ThrottlerGuard } from '@nestjs/throttler';
 
 @ApiTags('Products')
 @UseGuards(JwtGuard, RoleGuard, ThrottlerGuard)
+@ApiBearerAuth()
 @Controller('products')
 export class ProductController {
   constructor(private productService: ProductService) {}

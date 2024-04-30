@@ -4,7 +4,7 @@ import { GetUser, Roles } from '../auth/decorators';
 import { User } from '@prisma/client';
 import { EditUserDto, UserOutputDto } from './dto';
 import { UserService } from './user.service';
-import { ApiBadRequestResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBadRequestResponse, ApiBearerAuth, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { ValidationErrorOutputDto } from '../utils/dto';
 import { plainToInstance } from 'class-transformer';
 import { RoleSlug } from '../utils/constants';
@@ -13,6 +13,7 @@ import { Throttle } from '@nestjs/throttler';
 @ApiTags('Users')
 @Throttle({})
 @UseGuards(JwtGuard, RoleGuard)
+@ApiBearerAuth()
 @Controller('users')
 export class UserController {
   constructor(private userService: UserService) {}

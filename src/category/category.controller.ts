@@ -17,7 +17,7 @@ import { CreateCategoryDto, EditCategoryDto, CategoryOutputDto } from './dto';
 import { JwtGuard, RoleGuard } from '../auth/guard';
 import { PaginationParams } from '../utils/types';
 import { ApiPaginatedResponse } from '../utils/decorators/api-paginated-response-decorator';
-import { ApiOkResponse, ApiQuery, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOkResponse, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { PaginatedOutputDto } from '../utils/dto';
 import { Roles } from '../auth/decorators';
 import {
@@ -29,6 +29,7 @@ import { CacheKey } from '@nestjs/cache-manager';
 import { ThrottlerGuard } from '@nestjs/throttler';
 
 @ApiTags('Categories')
+@ApiBearerAuth()
 @UseGuards(JwtGuard, RoleGuard, ThrottlerGuard)
 @Controller('categories')
 export class CategoryController {
