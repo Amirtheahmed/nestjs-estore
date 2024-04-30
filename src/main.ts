@@ -8,6 +8,7 @@ import helmet from 'helmet';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
+  // security
   app.use(helmet());
 
   // Global Pipes and Interceptors
