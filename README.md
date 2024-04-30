@@ -58,8 +58,7 @@ npm install
 Start the Docker environment for development:
 
 ```bash
-npm run db:dev:up
-npm run prisma:dev:deploy
+npm run db:dev:restart
 ```
 
 ### Running the Application locally
@@ -68,6 +67,12 @@ To run the application in development mode:
 
 ```bash
 npm run start:dev
+```
+
+To seed db with data run
+
+```bash
+npm prisma db seed
 ```
 
 ## Usage

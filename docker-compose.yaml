@@ -1,5 +1,4 @@
 version: '3.8'
-name: nestjs-estore
 services:
   dev-db:
     image: postgres:latest

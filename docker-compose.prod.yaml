@@ -1,11 +1,13 @@
 version: '3.8'
 services:
-  app:
+  nestjs-estore-app:
+    container_name: nestjs-estore-app
     image: amirtheahmed/nestjs-estore:latest
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.nestjs-estore.rule=Host(`nestjs-estore.amirtheahmed.dev`)"
-      - "traefik.http.routers.nestjs-estore.entrypoints=https"
+      - "traefik.http.routers.nestjs-estore-app.rule=Host(`nestjs-estore.amirtheahmed.dev`)"
+      - "traefik.http.routers.nestjs-estore-app.entrypoints=https"
+      - "traefik.http.services.nestjs-estore-app.loadbalancer.server.port=3002"
     environment:
       NODE_ENV: production
       DATABASE_URL: ${DATABASE_URL}
@@ -17,17 +19,17 @@ services:
     networks:
       - nestjs-estore
     depends_on:
-      - prod-db
+      - nestjs-estore-db
     restart: unless-stopped
 
-  prod-db:
+  nestjs-estore-db:
     image: postgres:latest
     environment:
       POSTGRES_USER: ${DB_USERNAME}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
       POSTGRES_DB: estore-prod
     volumes:
-      - prod-db-data:/var/lib/postgresql/data
+      - nestjs-estore-db-data:/var/lib/postgresql/data
     ports:
       - "5434:5432"
     networks:
@@ -38,4 +40,4 @@ networks:
   nestjs-estore:
 
 volumes:
-  prod-db-data:
+  nestjs-estore-db-data:

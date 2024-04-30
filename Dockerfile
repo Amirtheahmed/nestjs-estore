@@ -17,4 +17,4 @@ COPY --chown=node:node --from=build /usr/src/app/node_modules/.prisma/client  ./
 
 ENV NODE_ENV production
 EXPOSE 3000
-CMD ["dumb-init", "node", "dist/src/main"]
+CMD ["npm", "run", "start:prod"]
