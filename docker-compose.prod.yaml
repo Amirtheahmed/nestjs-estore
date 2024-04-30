@@ -3,6 +3,7 @@ services:
   nestjs-estore-app:
     container_name: nestjs-estore-app
     image: amirtheahmed/nestjs-estore:latest
+    pull_policy: always
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.nestjs-estore-app.rule=Host(`nestjs-estore.amirtheahmed.dev`)"
