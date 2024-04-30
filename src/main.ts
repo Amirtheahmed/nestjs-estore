@@ -34,6 +34,7 @@ async function bootstrap() {
     .setTitle('NestJS - E-Store')
     .setDescription('E-Store API Documentation')
     .setVersion('1.0')
+    .addBearerAuth()
     .build();
 
   const options: SwaggerDocumentOptions = {
