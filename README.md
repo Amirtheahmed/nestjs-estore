@@ -38,6 +38,14 @@ This is a RESTful API designed for an online store to manage products, categorie
 - Swagger documentation at https://nestjs-estore.amirtheahmed.dev/api
 - Swagger documentation json at https://nestjs-estore.amirtheahmed.dev/api-json
 
+### Live test api credentials
+- Admin user
+  - email: `admin@example.com`
+  - password: `admin123`
+- Regular user
+  - email: `user@example.com`
+  - password: `user123`
+
 ## Installation
 
 ### Prerequisites
