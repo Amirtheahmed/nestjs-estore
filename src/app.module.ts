@@ -18,7 +18,7 @@ import { ThrottlerModule } from '@nestjs/throttler';
       {
         name: '3-per-second',
         ttl: 1000,
-        limit: 3,
+        limit: process.env.NODE_ENV !== 'test' ? 3 : 1000, // increase when testing
       },
       {
         name: '20-per-10-seconds',
