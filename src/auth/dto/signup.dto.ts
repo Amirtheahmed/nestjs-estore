@@ -12,21 +12,24 @@ export class SignupDto {
   @IsNotEmpty()
   email: string;
 
-  @ApiProperty({ example: 'password', description: 'Password' })
+  @ApiProperty({ example: 'password', description: 'Password', type: 'string' })
   @IsNotEmpty()
   password: string;
 
-  @ApiProperty({ example: 'John', description: 'First name of the user' })
+  @ApiProperty({ example: 'John', description: 'First name of the user', type: 'string' })
   @IsOptional()
   firstName?: string;
 
-  @ApiProperty({ example: 'Doe', description: 'Last name of the user' })
+  @ApiProperty({ example: 'Doe', description: 'Last name of the user', type: 'string' })
   @IsOptional()
   lastName?: string;
 
   @ApiProperty({
-    example: [RoleSlug.USER, RoleSlug.USER],
     description: 'Role of the user',
+    type: 'enum',
+    enum: RoleSlug,
+    default: RoleSlug.USER,
+    enumName: 'RoleSlug'
   })
   @IsNotEmpty()
   @IsEnum(RoleSlug)

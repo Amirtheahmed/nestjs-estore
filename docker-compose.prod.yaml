@@ -2,6 +2,10 @@ version: '3.8'
 services:
   app:
     image: amirtheahmed/nestjs-estore:latest
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.nestjs-estore.rule=Host(`nestjs-estore.amirtheahmed.dev`)"
+      - "traefik.http.routers.nestjs-estore.entrypoints=https"
     environment:
       NODE_ENV: production
       DATABASE_URL: ${DATABASE_URL}

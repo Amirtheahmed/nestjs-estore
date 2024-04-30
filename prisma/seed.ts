@@ -7,15 +7,15 @@ const prisma = new PrismaClient();
 
 async function seedUsersWithRoles() {
     // Create admin user
-    // await prisma.user.create({
-    //     data: {
-    //         email: 'admin@example.com',
-    //         hash: await argon2.hash('admin123'),
-    //         firstName: 'Admin',
-    //         lastName: 'User',
-    //         role: RoleSlug.ADMIN,
-    //     },
-    // });
+    await prisma.user.create({
+        data: {
+            email: 'admin@example.com',
+            hash: await argon2.hash('admin123'),
+            firstName: 'Admin',
+            lastName: 'User',
+            role: RoleSlug.ADMIN,
+        },
+    });
 
     // Create admin user
     await prisma.user.create({
