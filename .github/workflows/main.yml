@@ -1,12 +1,8 @@
 name: E-store | CI / CD
 
 on:
-  push:
-    branches:
-      - main
-  pull_request:
-    branches:
-      - main
+  release:
+    types: [created]
 
 jobs:
   build-and-test:
@@ -38,7 +34,6 @@ jobs:
     name: 🐳 Deploys Docker image to server
     needs: build-and-test
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     steps:
       - uses: actions/checkout@v3
       - name: Set up Docker Buildx
@@ -54,7 +49,9 @@ jobs:
           context: .
           file: ./Dockerfile
           push: true
-          tags: amirtheahmed/nestjs-estore:latest
+          tags: |
+            amirtheahmed/nestjs-estore:latest
+            amirtheahmed/nestjs-estore:${{ github.ref_name }}
       - name: Deploy to server
         uses: appleboy/ssh-action@v1.0.0
         with:
